@@ -1,7 +1,11 @@
 import javafx.stage.Stage;
 import javafx.scene.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.geometry.*;
 import javafx.event.*;
 import java.util.Random;
@@ -15,6 +19,11 @@ public class GameController {
     private boolean[][] isSafe;
     private Random random;
     private boolean gameOver;
+    private Button restartButton;
+    Label messageLabel;
+
+    private Image safeImage = new Image(getClass().getResourceAsStream("/Images/foot-steps.png"));
+    private Image unsafeImage = new Image(getClass().getResourceAsStream("/Images/cracks.png"));
 
     //constructor
     public GameController(){
@@ -26,7 +35,7 @@ public class GameController {
     }
 
     //methods
-    public void startGame(Stage primaryStage){
+    public VBox startGame(Stage primaryStage){
         this.primaryStage = primaryStage;
 
         //configuring the bridgePane
@@ -35,10 +44,80 @@ public class GameController {
         bridgePane.setVgap(5);
         bridgePane.getChildren().clear();
 
-        //generating the bridge
+        restartButton = new Button("Restart Game");
+        restartButton.setStyle("-fx-font-size: 16px; -fx-padding: 8px;");
+        restartButton.setOnAction(event -> resetGame());
+        
+        messageLabel = new Label("");
+        messageLabel.setStyle("-fx-font-size: 24px;");
+
+        VBox root = new VBox(20);
+        root.setAlignment(Pos.CENTER);
+        root.getChildren().addAll(bridgePane, messageLabel, restartButton);
+        return root;
     }
 
     public void generateBridge(){
+        for(int col = 0; col < 6; col++){
+            int safeRow = random.nextInt(2);
+            isSafe[safeRow][col] = true;
+            isSafe[1 - safeRow][col] = false;
+            
+            for(int row = 0; row < 2; row++){
+                Button button = new Button("?");
+                button.setMinSize(100,100);
+
+                tiles[row][col] = button;
+
+                int finalRow = row;
+                int finalCol = col;
+                button.setOnAction(event -> handleTileClick(finalRow, finalCol));
+
+                bridgePane.add(button, col, row);
+            }
+       } 
+    }
+
+    public void handleTileClick(int row, int col){
+        if(gameOver)
+            return;
         
+        if(isSafe[row][col]){
+            tiles[row][col].setGraphic(new ImageView(safeImage));
+            tiles[row][col].setDisable(true);
+            if(col == 5)
+                winGame();
+        } else{
+            tiles[row][col].setGraphic(new ImageView(unsafeImage));
+            tiles[row][col].setDisable(true);
+            gameOver();
+        }
+    }
+
+    public void winGame(){
+        gameOver = true;
+        for(int r = 0; r < 2; r++){
+            for(int c = 0; c < 6; c++){
+                tiles[r][c].setDisable(true);
+            }
+        }
+        
+        messageLabel.setText("You Win!");
+        messageLabel.setStyle("-fx-font-size: 30px; -fx-text-fill: green;");
+    }
+
+    public void gameOver(){
+        gameOver = true;
+        for(int r = 0; r < 2; r++){
+            for(int c = 0; c < 6; c++){
+                tiles[r][c].setDisable(true);
+            }
+        }
+        messageLabel.setText("Game Over");
+        messageLabel.setStyle("-fx-font-size: 30px; -fx-text-fill: red;");
+    }
+
+    public void resetGame(){
+        gameOver = false;
     }
 }
