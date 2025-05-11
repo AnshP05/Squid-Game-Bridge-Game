@@ -21,7 +21,7 @@ public class GameController {
     private boolean gameOver;
     private Button restartButton;
     Label messageLabel;
-
+    private int currentCol = 0;
     
     private Image safeImage = new Image("file:src/Images/foot-steps.png");
     private Image unsafeImage = new Image("file:src/Images/cracks.png");
@@ -47,6 +47,7 @@ public class GameController {
         bridgePane.setHgap(10);
         bridgePane.setVgap(5);
         bridgePane.getChildren().clear();
+        generateBridge();
 
         restartButton = new Button("Restart Game");
         restartButton.setStyle("-fx-font-size: 16px; -fx-padding: 8px;");
@@ -73,6 +74,8 @@ public class GameController {
 
                 tiles[row][col] = button;
 
+                button.setFocusTraversable(false);
+
                 int finalRow = row;
                 int finalCol = col;
                 button.setOnAction(event -> handleTileClick(finalRow, finalCol));
@@ -85,15 +88,20 @@ public class GameController {
     public void handleTileClick(int row, int col){
         if(gameOver)
             return;
+        if(col > currentCol)
+            return;
         
         if(isSafe[row][col]){
             tiles[row][col].setGraphic(new ImageView(safeImage));
             tiles[row][col].setDisable(true);
+            tiles[1-row][col].setDisable(true);
+            if(currentCol == col) currentCol++;
             if(col == 5)
                 winGame();
         } else{
             tiles[row][col].setGraphic(new ImageView(unsafeImage));
             tiles[row][col].setDisable(true);
+            tiles[1-row][col].setDisable(true);
             gameOver();
         }
     }
@@ -126,5 +134,6 @@ public class GameController {
         messageLabel.setText("");
         bridgePane.getChildren().clear();
         generateBridge();
+        currentCol = 0;
     }
 }
