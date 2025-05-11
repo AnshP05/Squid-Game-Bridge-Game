@@ -22,8 +22,12 @@ public class GameController {
     private Button restartButton;
     Label messageLabel;
 
-    private Image safeImage = new Image(getClass().getResourceAsStream("/Images/foot-steps.png"));
-    private Image unsafeImage = new Image(getClass().getResourceAsStream("/Images/cracks.png"));
+    
+    private Image safeImage = new Image("file:src/Images/foot-steps.png");
+    private Image unsafeImage = new Image("file:src/Images/cracks.png");
+
+
+
 
     //constructor
     public GameController(){
@@ -119,5 +123,8 @@ public class GameController {
 
     public void resetGame(){
         gameOver = false;
+        messageLabel.setText("");
+        bridgePane.getChildren().clear();
+        generateBridge();
     }
 }
